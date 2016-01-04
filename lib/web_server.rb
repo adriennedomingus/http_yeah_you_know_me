@@ -7,30 +7,34 @@ class Server
   def initialize
     tcp_server = TCPServer.new(9292)
     @client = tcp_server.accept
+    $counter = 0
+    @request_lines = []
   end
 
   def client_request
     puts "Ready for a request"
-    $request_lines = []
-      while line = @client.gets and !line.chomp.empty?
-        $request_lines << line.chomp
-      end
+    @request_lines = []
+    while line = @client.gets and !line.chomp.empty?
+      @request_lines << line.chomp
+    end
+    $counter += 1
   end
 
   def greeting
     puts "Got this request:"
-    puts $request_lines.inspect
-    greeting = "Hello, World!"
+    puts @request_lines.inspect
+    greeting = "Hello, World! (#{$counter})"
   end
 
   def to_browser
-    verb = "Verb: #{$request_lines[0].split[0]}"
-    path = "Path: #{$request_lines[0].split[1]}"
-    protocol = "Protocol: #{$request_lines[0].split[2]}"
-    host = "#{$request_lines[1]}"
-    port = "Port: #{$request_lines[1].split(":")[2]}"
-    origin = "Origin: #{$request_lines[1].split(":")[1,2].join(":")}"
-    accept = "#{$request_lines[3]}"
+    request_lines = @request_lines
+    verb = "Verb: #{request_lines[0].split[0]}"
+    path = "Path: #{request_lines[0].split[1]}"
+    protocol = "Protocol: #{request_lines[0].split[2]}"
+    host = "#{request_lines[1]}"
+    port = "Port: #{request_lines[1].split(":")[2]}"
+    origin = "Origin: #{request_lines[1].split(":")[1,2].join(":")}"
+    accept = "#{request_lines[4]}"
     @formatted_request_lines = [verb, path, protocol, host, port, origin, accept]
   end
 
