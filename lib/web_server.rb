@@ -76,22 +76,23 @@ class Server
   end
 
   def self.shutdown
-    "Total requests: #{$counter}"
+    "Total requests: #{@counter}"
   end
 
   def self.word_search
-    request_lines = @request_lines
-    @dictionary = File.read("/usr/share/dict/words").split("\n")
-    words = request_lines[0].split(/[\s?&]/)[2..-2]
-    @validation = ""
-    words.each do |word|
-      if @dictionary.include?(word)
-        @validation << "#{word.upcase} is a known word\n"
+    words = @request_lines[0].split(/[\s?&]/)[2..-2]
+    words.map do |word|
+      if is_a_word? word
+        "#{word.upcase} is a known word"
       else
-        @validation << "#{word.upcase} is not a known word\n"
+        "#{word.upcase} is not a known word"
       end
-    end
-    @validation
+    end.join("\n")
+  end
+
+  def self.is_a_word?(word)
+    dictionary = File.read("/usr/share/dict/words").split("\n")
+    dictionary.include?(word)
   end
 
   def self.no_path
@@ -110,9 +111,7 @@ class Server
 #end paths class?
 
   loop do
-
     client_access
-    # request_lines_to_command
     greeting
     paths
     command_line_output
@@ -121,5 +120,4 @@ class Server
       break
     end
   end
-
 end

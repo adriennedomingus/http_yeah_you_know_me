@@ -19,17 +19,9 @@ class ServerTest < Minitest::Test
     assert_equal 9292, client.port
   end
 
-  # def test_client_returns_body
-  #   response = client.get("http://127.0.0.1:9292")
-  #   assert_equal
-  #     '<html><head></head><body><pre>Hello, World! (14)
-  #
-  #     Verb: GET
-  #     Path: /
-  #     Protocol: HTTP/1.1
-  #     User-Agent: Hurley v0.2
-  #     Port:
-  #     Origin:  Hurley v0.2
-  #     Accept: */*</pre></body></html>', response.body
-  # end
+  def test_client_returns_body
+    response = client.get("http://127.0.0.1:9292")
+    result = "<html><head></head><body><pre>Hello, World! (1)\n\nVerb: GET\nPath: /\nProtocol: HTTP/1.1\nUser-Agent: Hurley v0.2\nPort: \nOrigin:  Hurley v0.2\nAccept: */*</pre></body></html>"
+    assert_equal result, response.body
+  end
 end
