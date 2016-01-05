@@ -1,5 +1,4 @@
 require 'socket'
-require_relative 'path'
 
 class Server
 
@@ -39,6 +38,12 @@ class Server
     @client.puts @output
   end
 
+  def self.close
+    puts ["Wrote this response:", @headers, @output].join("\n")
+    @client.close
+    puts "\nResponse complete, exiting."
+  end
+
 #end base server
 
 #paths class?
@@ -51,6 +56,9 @@ class Server
         @path_output = datetime
     when "/shutdown"
       @path_output = shutdown
+  #this never gets hit
+    when "/word_search?" + "/[\w]/"
+      @path_output = word_search
     else
       @path_output = no_path
     end
@@ -68,6 +76,19 @@ class Server
     "Total requests: #{$counter}"
   end
 
+  def self.word_search
+    request_lines = @request_lines
+    verb = "Verb: #{request_lines[0].split(/[?\s]/)[0]}"
+    path = "Path: #{request_lines[0].split(/[?\s]/)[1]}"
+    word = "Word: #{request_lines[0].split(/[?\s]/)[2]}"
+    protocol = "Protocol: #{request_lines[0].split(/[?\s]/)[3]}"
+    host = "#{request_lines[1]}"
+    port = "Port: #{request_lines[1].split(":")[2]}"
+    origin = "Origin: #{request_lines[1].split(":")[1,2].join(":")}"
+    accept = "#{request_lines[3]}"
+    @formatted_request_lines = [verb, path, word, protocol, host, port, origin, accept].join("\n")
+  end
+
   def self.no_path
     request_lines = @request_lines
     verb = "Verb: #{request_lines[0].split[0]}"
@@ -82,12 +103,6 @@ class Server
   end
 
 #end paths class?
-
-  def self.close
-    puts ["Wrote this response:", @headers, @output].join("\n")
-    @client.close
-    puts "\nResponse complete, exiting."
-  end
 
   loop do
 
