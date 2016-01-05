@@ -109,7 +109,6 @@ class Server
 
 #end paths class?
 
-
   loop do
 
     client_access
