@@ -16,17 +16,23 @@ class Server
     puts "Ready for a request"
     $counter += 1
   end
+  #
+  # def self.split_request_lines
+  #   request_lines = @request_lines.each do |line|
+  #     line.split(/[\s?:]/)
+  #   end
+  # end
 
   def self.greeting
     @greeting = "Hello, World! (#{$counter})"
   end
 
-  def self.request_lines_to_command
-    puts "Got this request:"
-    puts @request_lines.inspect
-  end
+  # def self.request_lines_to_command
+  # end
 
   def self.command_line_output
+    puts "Got this request:"
+    puts @request_lines.inspect
     puts "sending response."
     response_1 = "<pre>" + @path_output + "</pre>"
     @output = "<html><head></head><body>#{response_1}</body></html>"
@@ -35,6 +41,7 @@ class Server
            "server: ruby",
            "content-type: text/html; charset=iso-8859-1",
            "content-length: #{@output.length}\r\n\r\n"].join("\r\n")
+    @client.puts @headers
     @client.puts @output
   end
 
@@ -49,15 +56,14 @@ class Server
 #paths class?
 
   def self.paths
-    case @request_lines[0].split[1]
+    case @request_lines[0].split(/[\s?]/)[1]
     when "/hello"
       @path_output = hello
     when "/datetime"
         @path_output = datetime
     when "/shutdown"
       @path_output = shutdown
-  #this never gets hit
-    when "/word_search?" + "/[\w]/"
+    when "/word_search"
       @path_output = word_search
     else
       @path_output = no_path
@@ -78,10 +84,10 @@ class Server
 
   def self.word_search
     request_lines = @request_lines
-    verb = "Verb: #{request_lines[0].split(/[?\s]/)[0]}"
-    path = "Path: #{request_lines[0].split(/[?\s]/)[1]}"
-    word = "Word: #{request_lines[0].split(/[?\s]/)[2]}"
-    protocol = "Protocol: #{request_lines[0].split(/[?\s]/)[3]}"
+    verb = "Verb: #{request_lines[0].split(/[\s?]/)[0]}"
+    path = "Path: #{request_lines[0].split(/[\s?]/)[1]}"
+    word = "Word: #{request_lines[0].split(/[\s?]/)[2]}"
+    protocol = "Protocol: #{request_lines[0].split(/[\s?]/)[3]}"
     host = "#{request_lines[1]}"
     port = "Port: #{request_lines[1].split(":")[2]}"
     origin = "Origin: #{request_lines[1].split(":")[1,2].join(":")}"
