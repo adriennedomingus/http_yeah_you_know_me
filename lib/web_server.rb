@@ -5,7 +5,7 @@ class Server
 #this is the base server
 
   @tcp_server = TCPServer.open(9292)
-  $counter = 0
+  @counter = 0
 
   def self.client_access
     @request_lines = []
@@ -14,7 +14,7 @@ class Server
       @request_lines << line.chomp
     end
     puts "Ready for a request"
-    $counter += 1
+    @counter += 1
   end
   #
   # def self.split_request_lines
@@ -24,11 +24,8 @@ class Server
   # end
 
   def self.greeting
-    @greeting = "Hello, World! (#{$counter})"
+    @greeting = "Hello, World! (#{@counter})"
   end
-
-  # def self.request_lines_to_command
-  # end
 
   def self.command_line_output
     puts "Got this request:"
@@ -84,15 +81,17 @@ class Server
 
   def self.word_search
     request_lines = @request_lines
-    verb = "Verb: #{request_lines[0].split(/[\s?]/)[0]}"
-    path = "Path: #{request_lines[0].split(/[\s?]/)[1]}"
-    word = "Word: #{request_lines[0].split(/[\s?]/)[2]}"
-    protocol = "Protocol: #{request_lines[0].split(/[\s?]/)[3]}"
-    host = "#{request_lines[1]}"
-    port = "Port: #{request_lines[1].split(":")[2]}"
-    origin = "Origin: #{request_lines[1].split(":")[1,2].join(":")}"
-    accept = "#{request_lines[3]}"
-    @formatted_request_lines = [verb, path, word, protocol, host, port, origin, accept].join("\n")
+    @dictionary = File.read("/usr/share/dict/words").split("\n")
+    words = request_lines[0].split(/[\s?&]/)[2..-2]
+    @validation = ""
+    words.each do |word|
+      if @dictionary.include?(word)
+        @validation << "#{word.upcase} is a known word\n"
+      else
+        @validation << "#{word.upcase} is not a known word\n"
+      end
+    end
+    @validation
   end
 
   def self.no_path
@@ -110,10 +109,11 @@ class Server
 
 #end paths class?
 
+
   loop do
 
     client_access
-    request_lines_to_command
+    # request_lines_to_command
     greeting
     paths
     command_line_output
