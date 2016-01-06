@@ -1,5 +1,6 @@
 require_relative 'word_search'
 require_relative 'game'
+require_relative 'web_server_2.rb'
 
 class PathRequest
 
@@ -7,30 +8,38 @@ class PathRequest
 
   def initialize
     @counter = 0
+    @redirect = false
   end
 
   def greeting
     "Hello, World! (#{@counter += 1})"
   end
 
-  def paths(path_to_follow, words, response_body)
+  def paths(path_to_follow, parameter_value, response_body, verb)
     general_output = response_body
-    case path_to_follow
-    when "/hello"
+    if path_to_follow == "/hello"
       path_output = hello
-    when "/datetime"
+    elsif path_to_follow == "/datetime"
       path_output = datetime
-    when "/shutdown"
+    elsif path_to_follow == "/shutdown"
       path_output = shutdown
-    when "/word_search"
-      path_output = WordSearch.new.word_search(words)
-    when "/start_game"
+    elsif path_to_follow == "/word_search"
+      path_output = WordSearch.new.word_search(parameter_value)
+    elsif path_to_follow == "/start_game"
       path_output = start_game
-    when "/game"
-      "test"
+    elsif path_to_follow == "/game" && verb == "GET"
+      @redirect = false
+      Game.new.play_game(parameter_value)
+    elsif path_to_follow == "/game" && verb == "POST"
+      @redirect = true
+      response = "redirecting"
     else
       path_output = general_output
     end
+  end
+
+  def redirect?
+    @redirect
   end
 
   def hello
@@ -49,7 +58,7 @@ class PathRequest
     "Good luck!"
   end
 
-  def game
-    Game.new.start_game
-  end
+  # def game
+  #   Game.new.play_game
+  # end
 end
