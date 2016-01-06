@@ -1,4 +1,4 @@
-require_relative 'web_server_2'
+require_relative 'word_search'
 require 'pry'
 
 class PathRequest
@@ -21,7 +21,7 @@ class PathRequest
     when "/shutdown"
       path_output = shutdown
     when "/word_search"
-      path_output = word_search(words)
+      path_output = WordSearch.new.word_search(words)
     else
       path_output = general_output
     end
@@ -38,20 +38,5 @@ class PathRequest
 
   def shutdown
     "Total requests: #{@counter}"
-  end
-
-  def word_search(words)
-    words.map do |word|
-      if is_a_word? word
-        "#{word.upcase} is a known word"
-      else
-        "#{word.upcase} is not a known word"
-      end
-    end.join("\n")
-  end
-
-  def is_a_word?(word)
-    dictionary = File.read("/usr/share/dict/words").split("\n")
-    dictionary.include?(word)
   end
 end
