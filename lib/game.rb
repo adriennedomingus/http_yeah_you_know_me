@@ -1,5 +1,7 @@
 class Game
 
+  attr_reader :number_to_guess, :guess_counter
+
   def initialize
     @number_to_guess = 72
     @guess_counter = 0
@@ -8,10 +10,10 @@ class Game
   def play_game(guess)
     guess = guess[0].to_i
     if guess > @number_to_guess
-      response = "too high"
+      response = "too high."
       @guess_counter += 1
     elsif guess < @number_to_guess
-      response = "too low"
+      response = "too low."
       @guess_counter += 1
     elsif guess == @number_to_guess
       response = "correct!"

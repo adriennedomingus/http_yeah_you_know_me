@@ -29,9 +29,10 @@ class PathRequest
       path_output = start_game
     elsif path_to_follow == "/game" && verb == "GET"
       @redirect = false
-      Game.new.play_game(parameter_value)
+      path_output = Game.new.play_game(@parameter_value)
     elsif path_to_follow == "/game" && verb == "POST"
       @redirect = true
+      @parameter_value = parameter_value
       response = "redirecting"
     else
       path_output = general_output
