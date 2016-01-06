@@ -1,33 +1,22 @@
 require 'socket'
 
 class Server
-
-#this is the base server
-
-  @tcp_server = TCPServer.open(9292)
-  @counter = 0
-
-  def self.client_access
-    @request_lines = []
-    @client = @tcp_server.accept
-    while line = @client.gets and !line.chomp.empty?
-      @request_lines << line.chomp
-    end
-    puts "Ready for a request"
-    @counter += 1
+  def initialize
+    @tcp_server = TCPServer.open(9292)
+    @counter = 0
   end
   #
-  # def self.split_request_lines
+  # def split_request_lines
   #   request_lines = @request_lines.each do |line|
   #     line.split(/[\s?:]/)
   #   end
   # end
 
-  def self.greeting
+  def greeting
     @greeting = "Hello, World! (#{@counter})"
   end
 
-  def self.command_line_output
+  def command_line_output
     puts "Got this request:"
     puts @request_lines.inspect
     puts "sending response."
@@ -42,7 +31,7 @@ class Server
     @client.puts @output
   end
 
-  def self.close
+  def close
     puts ["Wrote this response:", @headers, @output].join("\n")
     @client.close
     puts "\nResponse complete, exiting."
@@ -52,12 +41,12 @@ class Server
 
 #paths class?
 
-  def self.paths
+  def paths
     case @request_lines[0].split(/[\s?]/)[1]
     when "/hello"
       @path_output = hello
     when "/datetime"
-        @path_output = datetime
+      @path_output = datetime
     when "/shutdown"
       @path_output = shutdown
     when "/word_search"
@@ -67,19 +56,19 @@ class Server
     end
   end
 
-  def self.hello
+  def hello
     @greeting
   end
 
-  def self.datetime
+  def datetime
     Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')
   end
 
-  def self.shutdown
+  def shutdown
     "Total requests: #{@counter}"
   end
 
-  def self.word_search
+  def word_search
     words = @request_lines[0].split(/[\s?&]/)[2..-2]
     words.map do |word|
       if is_a_word? word
@@ -90,12 +79,12 @@ class Server
     end.join("\n")
   end
 
-  def self.is_a_word?(word)
+  def is_a_word?(word)
     dictionary = File.read("/usr/share/dict/words").split("\n")
     dictionary.include?(word)
   end
 
-  def self.no_path
+  def no_path
     request_lines = @request_lines
     verb = "Verb: #{request_lines[0].split[0]}"
     path = "Path: #{request_lines[0].split[1]}"
@@ -108,16 +97,47 @@ class Server
     @greeting + ("\n\n") + @formatted_request_lines.join("\n")
   end
 
-#end paths class?
 
-  loop do
-    client_access
-    greeting
-    paths
-    command_line_output
-    close
-    if @request_lines[0].split[1] == "/shutdown"
-      break
+  def client_access
+    @request_lines = []
+    @client = @tcp_server.accept
+    while line = @client.gets and !line.chomp.empty?
+      @request_lines << line.chomp
+    end
+    puts "Ready for a request"
+    @counter += 1
+  end
+# Step A
+#  -> Step B
+#     -> Step C
+#       -> Step D
+
+# Top Level
+#  -> Step A
+#  <- data
+# -> Step B (data)
+#  <- data
+#
+
+  def run!
+    loop do
+      client = @tcp_server.accept
+      # request = read_request(client)
+      # response = generate_response(request)
+      # client.write_response
+      # client.close
+      client_access
+      greeting
+      paths
+      command_line_output
+      close
+      if @request_lines[0].split[1] == "/shutdown"
+        break
+      end
     end
   end
+end
+
+if __FILE__ == $0
+  Server.new.run!
 end
