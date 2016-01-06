@@ -3,6 +3,8 @@ require 'pry'
 
 class PathRequest
 
+  attr_reader :counter
+
   def initialize
     @counter = 0
   end
@@ -25,7 +27,6 @@ class PathRequest
     else
       path_output = general_output
     end
-    path_output
   end
 
   def hello

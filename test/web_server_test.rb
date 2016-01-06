@@ -2,7 +2,7 @@ require 'minitest/autorun'
 require 'minitest/pride'
 require 'hurley'
 require 'socket'
-require_relative '../lib/web_server'
+require_relative '../lib/web_server_2'
 
 class ServerTest < Minitest::Test
 
@@ -24,4 +24,10 @@ class ServerTest < Minitest::Test
     result = "<html><head></head><body><pre>Hello, World! (1)\n\nVerb: GET\nPath: /\nProtocol: HTTP/1.1\nUser-Agent: Hurley v0.2\nPort: \nOrigin:  Hurley v0.2\nConnection: close</pre></body></html>"
     assert_equal result, response.body
   end
+  # 
+  # def test_initial_request_lines_is_empty_array
+  #   WebServer.new.response_body
+  #   assert_equal [], @request_lines
+  # end
+
 end
