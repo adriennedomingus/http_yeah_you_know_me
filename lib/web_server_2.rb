@@ -1,5 +1,4 @@
 require 'socket'
-require 'pry'
 require_relative 'path'
 
 class WebServer

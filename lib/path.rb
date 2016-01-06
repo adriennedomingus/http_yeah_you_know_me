@@ -1,5 +1,5 @@
 require_relative 'word_search'
-require 'pry'
+require_relative 'game'
 
 class PathRequest
 
@@ -24,6 +24,10 @@ class PathRequest
       path_output = shutdown
     when "/word_search"
       path_output = WordSearch.new.word_search(words)
+    when "/start_game"
+      path_output = start_game
+    when "/game"
+      "test"
     else
       path_output = general_output
     end
@@ -39,5 +43,13 @@ class PathRequest
 
   def shutdown
     "Total requests: #{@counter}"
+  end
+
+  def start_game
+    "Good luck!"
+  end
+
+  def game
+    Game.new.start_game
   end
 end
