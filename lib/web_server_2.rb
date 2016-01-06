@@ -4,7 +4,7 @@ require_relative 'path'
 
 class WebServer
 
-  attr_reader :client, :request_lines, :path_output, :path_options
+  attr_reader :client, :request_lines, :path_output, :path_options, :output, :headers
 
   def initialize
     @server = TCPServer.new(9292)
@@ -16,22 +16,22 @@ class WebServer
     @client = @server.accept
   end
 
-  def format_request
+  def format_response
     while line = client.gets and !line.chomp.empty?
       request_lines << line.chomp
     end
     request_lines
   end
 
-  def server_output
-    general_output = body
+  def server_response
+    general_output = response_body
     path_output = path_options.paths(@path.split(/[\s?&]/)[1], @path.split(/[\s?&]/)[2..-1], general_output)
     puts "Got this request:"
     puts request_lines.inspect
     puts "sending response."
     response = "<pre>" + path_output + "</pre>"
-    output = "<html><head></head><body>#{response}</body></html>"
-    headers = ["http/1.1 200 ok",
+    @output = "<html><head></head><body>#{response}</body></html>"
+    @headers = ["http/1.1 200 ok",
           "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
           "server: ruby",
           "content-type: text/html; charset=iso-8859-1",
@@ -40,8 +40,8 @@ class WebServer
     client.puts output
   end
 
-  def body
-    request_lines = format_request
+  def response_body
+    request_lines = format_response
     verb = "Verb: #{request_lines[0].split[0]}"
     @path = "Path: #{request_lines[0].split[1]}"
     protocol = "Protocol: #{request_lines[0].split[2]}"
@@ -53,11 +53,17 @@ class WebServer
     @path_options.greeting + "\n\n" + formatted_request_lines.join("\n")
   end
 
+  def end_response
+    puts ["Wrote this response:", @headers, @output].join("\n")
+    client.close
+    puts "\nResponse complete, exiting."
+  end
+
   def run!
     loop do
       start_server
-      server_output
-      # paths
+      server_response
+      end_response
       if request_lines[0].split[1] == "/shutdown"
         break
       end

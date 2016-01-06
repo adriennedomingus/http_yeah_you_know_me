@@ -11,8 +11,8 @@ class PathRequest
     "Hello, World! (#{@counter += 1})"
   end
 
-  def paths(path_to_follow, words, body)
-    general_output = body
+  def paths(path_to_follow, words, response_body)
+    general_output = response_body
     case path_to_follow
     when "/hello"
       path_output = hello
