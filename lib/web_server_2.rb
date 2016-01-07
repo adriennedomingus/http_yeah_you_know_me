@@ -2,6 +2,11 @@ require 'socket'
 require_relative 'path'
 
 class WebServer
+  include Enumerable
+
+  def each(&block)
+
+  end
 
   attr_reader :client, :request_lines, :path_output, :path_options, :output, :headers
 
@@ -25,8 +30,11 @@ class WebServer
   def command_line_output(response_body)
     verb = "#{request_lines[0].split[0]}"
     path = request_lines[0].split(/[\s?&=]/)
-    parameter_value = path[2..-2].delete_if do |word|
-      word == "word" || word == "guess"
+    parameter_value = []
+    path[2..-2].each_with_index do |word, index|
+        if index.odd?
+          parameter_value << word
+      end
     end
     path_output = path_options.paths(path[1], parameter_value, response_body, verb)
     puts "Got this request:"
