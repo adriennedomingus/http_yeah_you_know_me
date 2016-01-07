@@ -48,8 +48,6 @@ class WebServer
   def game_server_response
     @output = "<html><head></head><body>#{@response}</body></html>"
     @headers = ["HTTP/1.1 302 Found",
-                "server: ruby",
-                "content-type: text/html; charset=iso-8859-1",
                 "Location: http://127.0.0.1:9292/game\r\n\r\n"].join("\r\n")
     client.puts headers
     client.puts output

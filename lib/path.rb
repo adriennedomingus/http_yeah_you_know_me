@@ -33,7 +33,7 @@ class PathRequest
     elsif path_to_follow == "/game" && verb == "POST"
       @redirect = true
       @parameter_value = parameter_value
-      response = "redirecting"
+      path_output = "whatever"
     else
       path_output = general_output
     end
