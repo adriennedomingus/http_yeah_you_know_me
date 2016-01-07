@@ -1,26 +1,42 @@
+require_relative 'word_search'
+require_relative 'game'
 require_relative 'web_server_2'
 require 'pry'
 
 class PathRequest
-    attr_reader :request_lines, :counter
-  def initialize(request_lines, counter)
-    @counter = counter
-    @request_lines = request_lines
 
+    attr_reader :request_lines, :total_pings, :parameter_values
+
+  def initialize(request_lines, total_pings)
+    @total_pings = total_pings
+    @counter = 0
+    @request_lines = request_lines
+    @redirect = false
   end
 
   def path_request
     request_lines
-    # @counter += 1
-    case request_lines[0].split(/[\s?]/)[1]
-    when "/hello"
+    verb = request_lines[0].split[0]
+    path = request_lines[0].split(/[\s?]/)[1]
+
+    if path == "/hello"
       greeting
-    when "/datetime"
+    elsif path == "/datetime"
       datetime
-    when "/shutdown"
+    elsif path == "/shutdown"
       shutdown
-    when "/word_search"
-      word_search
+    elsif path == "/word_search"
+      dictionary
+    elsif path == "/start_game"
+      start_game
+    elsif path == "/game" && verb == "GET"
+      @redirect = false
+      play_game
+    elsif path == "/game" && verb == "POST"
+      @redirect = true
+      binding.pry
+      parameter_values
+      "hello"
     else
       response_body
     end
@@ -39,8 +55,12 @@ class PathRequest
     greeting + "\n\n" + formatted_request_lines.join("\n")
   end
 
+  def redirect?
+    @redirect
+  end
+
   def greeting
-    "Hello, World! (#{counter})"
+    "Hello, World! (#{@counter += 1})"
   end
 
   def datetime
@@ -48,7 +68,24 @@ class PathRequest
   end
 
   def shutdown
-    "Total requests: #{counter}"
+    "Total requests: #{total_pings}"
   end
 
+  def parameter_values
+    @parameter_values = request_lines[0].split(/[\s?&=]/)[2..-2].delete_if do |word|
+      word == "word" || word == "guess"
+    end
+  end
+
+  def dictionary
+    WordSearch.new.word_search(parameter_values)
+  end
+
+  def play_game
+    Game.new.play_game(parameter_values)
+  end
+
+  def start_game
+    "Good Luck!"
+  end
 end

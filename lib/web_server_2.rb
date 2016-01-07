@@ -2,19 +2,21 @@ require 'socket'
 require 'pry'
 require_relative 'path'
 
-class WebServer
 
-  attr_reader :client, :request_lines, :path_extension, :counter
+class WebServer
+  attr_reader :client, :request_lines, :counter, :path
 
   def initialize
     @server = TCPServer.new(9292)
-    @counter = 0
+    @total_pings = 0
+    @path = PathRequest.new(request_lines, @total_pings)
   end
 
   def start_server
-    @counter += 1
+    @total_pings += 1
     @request_lines = []
     @client = @server.accept
+
   end
 
   def format_response
@@ -24,12 +26,17 @@ class WebServer
     request_lines
   end
 
-  def server_response
-    path_extension = PathRequest.new(request_lines, counter).path_request
+  def html_response
+    path_extension = PathRequest.new(request_lines, @total_pings).path_request
+    binding.pry
     puts "Got this request:"
     puts request_lines.inspect
     puts "sending response."
     response = "<pre>" + path_extension + "</pre>"
+  end
+
+  def server_response
+    response = html_response
     @output = "<html><head></head><body>#{response}</body></html>"
     @headers = ["http/1.1 200 ok",
           "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
@@ -39,6 +46,21 @@ class WebServer
     client.puts @headers
     client.puts @output
   end
+
+  def game_server_response
+    response = html_response
+    # path_extension = PathRequest.new(request_lines, @total_pings, redirect).path_request
+    # # binding.pry
+    # puts "Got this request:"
+    # puts request_lines.inspect
+    # puts "sending response."
+    # response = "<pre>" + path_extension + "</pre>"
+    @output = "<html><head></head><body>#{response}</body></html>"
+    @headers = ["HTTP/1.1 302 Found",
+               "Location: http://127.0.0.1:9292/game\r\n\r\n"].join("\r\n")
+    client.puts @headers
+    client.puts @output
+ end
 
   def end_response
     puts ["Wrote this response:", @headers, @output].join("\n")
@@ -50,8 +72,17 @@ class WebServer
     loop do
       start_server
       format_response
-      server_response
+      html_response
+      binding.pry
+      if path.redirect?
+        game_server_response
+      else
+        server_response
+      end
       end_response
+      if request_lines[0].split[1] == "/shutdown"
+        break
+      end
     end
   end
 end
