@@ -1,3 +1,5 @@
+require 'simplecov'
+SimpleCov.start
 require 'minitest/autorun'
 require 'minitest/pride'
 require_relative '../lib/game'
@@ -13,30 +15,30 @@ class GameTest < MiniTest::Test
     game = Game.new
     result = "You have made 1 guess(es)\nYour guess was 32, which is too low."
 
-    assert_equal result, game.play_game("32")
+    assert_equal result, game.make_a_guess("32")
   end
 
   def test_guess_that_is_too_high
     game = Game.new
     result = "You have made 1 guess(es)\nYour guess was 109, which is too high."
 
-    assert_equal result, game.play_game("109")
+    assert_equal result, game.make_a_guess("109")
   end
 
   def test_correct_guess
     game = Game.new
     result = "You have made 1 guess(es)\nYour guess was 72, which is correct!"
 
-    assert_equal result, game.play_game("72")
+    assert_equal result, game.make_a_guess("72")
   end
 
   def test_guess_counter
     game = Game.new
 
-    game.play_game("32")
-    game.play_game("109")
-    game.play_game("76")
-    game.play_game("2")
+    game.make_a_guess("32")
+    game.make_a_guess("109")
+    game.make_a_guess("76")
+    game.make_a_guess("2")
 
     assert_equal 4, game.guess_counter
   end

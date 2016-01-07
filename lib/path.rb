@@ -58,6 +58,7 @@ class PathRequest
   end
 
   def start_game
+    @game = Game.new
     "Good luck!"
   end
 
@@ -73,8 +74,8 @@ class PathRequest
 
   def play_game(parameter_value, verb)
     @redirect = false
-    if @parameter_value
-      Game.new.make_a_guess(@parameter_value)
+    if @parameter_value != nil
+      @game.make_a_guess(@parameter_value)
     else
       "You did not make a guess!"
     end

@@ -1,3 +1,5 @@
+require 'simplecov'
+SimpleCov.start
 require 'minitest/autorun'
 require 'minitest/pride'
 require_relative '../lib/path.rb'
@@ -8,15 +10,6 @@ class PathRequestTest < MiniTest::Test
   def setup
     @response_body = "Hello, World! (1)\n\nVerb: GET\nPath: /\nProtocol: HTTP/1.1\nHost: localhost:9292\nPort: 9292\nOrigin:  localhost:9292\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
   end
-  #
-  # def test_counter_goes_up_when_a_path_is_called
-  #   path = PathRequest.new
-  #   assert_equal 0, path.counter
-  #   path.hello
-  #   path.datetime
-  #   path.shutdown
-  #   assert_equal 3, path.counter
-  # end
 
   def test_greeting_says_hello
     path = PathRequest.new
@@ -59,15 +52,48 @@ class PathRequestTest < MiniTest::Test
     assert_equal result, path.paths("/", [], @response_body, "GET")
   end
 
+  def test_game_path_post_verb_sets_redirect_to_true
+    path = PathRequest.new
+    refute path.redirect?
+    path.paths("/game", [], @response_body, "POST")
+    assert path.redirect?
+  end
+
+  def test_start_game_wishes_you_luck
+    path = PathRequest.new
+
+    result = "Good luck!"
+    assert_equal result, path.paths("/start_game", [], @response_body, "POST")
+  end
+
+  def test_game_without_a_guess
+    path = PathRequest.new
+
+    refute @redirect
+    result = "You did not make a guess!"
+    assert_equal result, path.paths("/game", [], @response_body, "GET")
+  end
+
+  def test_with_a_guess_makes_a_guess
+    path = PathRequest.new
+
+    refute @redirect
+    path.paths("/game", [43], @response_body, "POST")
+
+    #parameter value isn't getting stored, but working in postman
+    assert_equal 43, @parameter_value
+  end
+
   def test_different_responses_with_multiple_requests
     path = PathRequest.new
 
     result1 = Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')
-    result2 = result = "Hello, World! (1)\n\nVerb: GET\nPath: /\nProtocol: HTTP/1.1\nHost: localhost:9292\nPort: 9292\nOrigin:  localhost:9292\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+    result2 = "Hello, World! (1)\n\nVerb: GET\nPath: /\nProtocol: HTTP/1.1\nHost: localhost:9292\nPort: 9292\nOrigin:  localhost:9292\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
     result3 = "Hello, World! (3)"
 
     assert_equal result1, path.paths("/datetime", [], @response_body, "GET")
     assert_equal result2, path.paths("/", [], @response_body, "GET")
     assert_equal result3, path.paths("/hello", [], @response_body, "GET")
   end
+
 end
