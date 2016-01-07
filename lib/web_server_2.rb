@@ -1,5 +1,3 @@
-require 'simplecov'
-SimpleCov.start
 require 'socket'
 require_relative 'path'
 
@@ -34,8 +32,8 @@ class WebServer
     path = request_lines[0].split(/[\s?&=]/)
     parameter_value = []
     path[2..-2].each_with_index do |word, index|
-        if index.odd?
-          parameter_value << word
+      if index.odd?
+        parameter_value << word
       end
     end
     path_output = path_options.paths(path[1], parameter_value, response_body, verb)
