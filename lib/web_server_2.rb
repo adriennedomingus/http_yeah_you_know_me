@@ -1,15 +1,7 @@
-require 'simplecov'
-SimpleCov.start
 require 'socket'
 require_relative 'path'
 
 class WebServer
-  include Enumerable
-
-  def each(&block)
-
-  end
-
   attr_reader :client, :request_lines, :path_output, :path_options, :output, :headers
 
   def initialize
