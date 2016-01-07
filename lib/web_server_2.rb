@@ -11,23 +11,24 @@ class WebServer
   end
 
   def start_server
-    @request_lines = []
     @client = @server.accept
   end
 
   def format_response
+    @request_lines = []
     while line = client.gets and !line.chomp.empty?
-      request_lines << line.chomp
+      @request_lines << line.chomp
     end
     request_lines
   end
 
-  def command_line_output
-    general_output = response_body
-    parameter_value = @path.split(/[\s?&=]/)[2..-1].delete_if do |word|
+  def command_line_output(response_body)
+    verb = "#{request_lines[0].split[0]}"
+    path = request_lines[0].split(/[\s?&=]/)
+    parameter_value = path[2..-2].delete_if do |word|
       word == "word" || word == "guess"
     end
-    path_output = path_options.paths(@path.split(/[\s?&]/)[1], parameter_value, general_output, @verb.split[1])
+    path_output = path_options.paths(path[1], parameter_value, response_body, verb)
     puts "Got this request:"
     puts request_lines.inspect
     puts "sending response."
@@ -48,26 +49,28 @@ class WebServer
   def game_server_response
     @output = "<html><head></head><body>#{@response}</body></html>"
     @headers = ["HTTP/1.1 302 Found",
-                "Location: http://127.0.0.1:9292/game\r\n\r\n"].join("\r\n")
+                "Location: http://127.0.0.1:9292/game\r\n\r\n",
+                "content-length: #{output.length}\r\n\r\n"].join("\r\n")
     client.puts headers
     client.puts output
   end
 
-  def response_body
-    request_lines = format_response
-    @verb = "Verb: #{request_lines[0].split[0]}"
-    @path = "Path: #{request_lines[0].split[1]}"
+  def response_body(format_response)
+    puts "*****************************"
+    puts request_lines.inspect
+    verb = "Verb: #{request_lines[0].split[0]}"
+    path = "Path: #{request_lines[0].split[1]}"
     protocol = "Protocol: #{request_lines[0].split[2]}"
     host = "#{request_lines[1]}"
     port = "Port: #{request_lines[1].split(":")[2]}"
     origin = "Origin: #{request_lines[1].split(":")[1,2].join(":")}"
     accept = "#{request_lines[4]}"
-    formatted_request_lines = [@verb, @path, protocol, host, port, origin, accept]
-    @path_options.greeting + "\n\n" + formatted_request_lines.join("\n")
+    formatted_request_lines = [verb, path, protocol, host, port, origin, accept]
+    path_options.greeting + "\n\n" + formatted_request_lines.join("\n")
   end
 
   def end_response
-    puts ["Wrote this response:", @headers, @output].join("\n")
+    puts ["Wrote this response:", headers, output].join("\n")
     client.close
     puts "\nResponse complete, exiting."
   end
@@ -75,16 +78,10 @@ class WebServer
   def run!
     loop do
       start_server
-      command_line_output
-      if @path_options.redirect?
-        game_server_response
-      else
-        server_response
-      end
+      command_line_output(response_body(format_response))
+      path_options.redirect? ? game_server_response : server_response
       end_response
-      if request_lines[0].split[1] == "/shutdown"
-        break
-      end
+      break if request_lines[0].split[1] == "/shutdown"
     end
   end
 end

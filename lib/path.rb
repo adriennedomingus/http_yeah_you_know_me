@@ -12,30 +12,32 @@ class PathRequest
   end
 
   def greeting
-    "Hello, World! (#{@counter += 1})"
+    "Hello, World! (#{counter})"
   end
 
   def paths(path_to_follow, parameter_value, response_body, verb)
-    general_output = response_body
-    if path_to_follow == "/hello"
+    increase_counter(path_to_follow)
+    case path_to_follow
+    when "/hello"
       path_output = hello
-    elsif path_to_follow == "/datetime"
+    when "/datetime"
       path_output = datetime
-    elsif path_to_follow == "/shutdown"
+    when "/shutdown"
       path_output = shutdown
-    elsif path_to_follow == "/word_search"
+    when "/word_search"
       path_output = WordSearch.new.word_search(parameter_value)
-    elsif path_to_follow == "/start_game"
+    when "/start_game"
       path_output = start_game
-    elsif path_to_follow == "/game" && verb == "GET"
-      @redirect = false
-      path_output = Game.new.play_game(@parameter_value)
-    elsif path_to_follow == "/game" && verb == "POST"
-      @redirect = true
-      @parameter_value = parameter_value
-      path_output = "whatever"
+    when "/game"
+      path_output = game(parameter_value, verb)
     else
-      path_output = general_output
+      path_output = response_body
+    end
+  end
+
+  def increase_counter(path_to_follow)
+    if path_to_follow != "/favicon.ico"
+      @counter += 1
     end
   end
 
@@ -52,14 +54,29 @@ class PathRequest
   end
 
   def shutdown
-    "Total requests: #{@counter}"
+    "Total requests: #{counter}"
   end
 
   def start_game
     "Good luck!"
   end
 
-  # def game
-  #   Game.new.play_game
-  # end
+  def game(parameter_value, verb)
+    if verb == "GET"
+      play_game(parameter_value, verb)
+    elsif verb == "POST"
+      @redirect = true
+      @parameter_value = parameter_value[0].to_i
+      "guess"
+    end
+  end
+
+  def play_game(parameter_value, verb)
+    @redirect = false
+    if @parameter_value
+      Game.new.make_a_guess(@parameter_value)
+    else
+      "You did not make a guess!"
+    end
+  end
 end
