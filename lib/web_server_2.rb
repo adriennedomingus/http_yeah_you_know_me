@@ -1,3 +1,5 @@
+require 'simplecov'
+SimpleCov.start
 require 'socket'
 require_relative 'path'
 
@@ -64,8 +66,6 @@ class WebServer
   end
 
   def response_body(format_response)
-    puts "*****************************"
-    puts request_lines.inspect
     verb = "Verb: #{request_lines[0].split[0]}"
     path = "Path: #{request_lines[0].split[1]}"
     protocol = "Protocol: #{request_lines[0].split[2]}"
