@@ -30,7 +30,7 @@ class ServerTest < Minitest::Test
   def test_response_body_formats_response
     server = WebServer.new
     result = "Hello, World! (0)\n\nVerb: GET\nPath: /\nProtocol: HTTP/1.1\nHost: 127.0.0.1:9292\nPort: 9292\nOrigin:  127.0.0.1:9292\nAccept: */*"
-    assert_equal result, server.response_body(@request_lines)
+    assert_equal result, server.format_response(@request_lines)
   end
 
 end

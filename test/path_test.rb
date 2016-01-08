@@ -70,7 +70,8 @@ class PathRequestTest < MiniTest::Test
 
   def test_game_path_post_verb_sets_redirect_to_true
     path = PathRequest.new
-    refute path.redirect?
+
+    path.paths("/start_game", [], @response_body, "POST")
     path.paths("/game", [], @response_body, "POST")
     assert path.redirect?
   end
@@ -85,6 +86,7 @@ class PathRequestTest < MiniTest::Test
   def test_game_without_a_guess
     path = PathRequest.new
 
+    path.paths("/start_game", [], @response_body, "POST")
     refute @redirect
     result = "You did not make a guess!"
     assert_equal result, path.paths("/game", [], @response_body, "GET")

@@ -1,8 +1,8 @@
 class Game
   attr_reader :number_to_guess, :guess_counter
 
-  def initialize
-    @number_to_guess = Random.rand(0..100)
+  def initialize(number_to_guess = Random.rand(0..100))
+    @number_to_guess = number_to_guess
     @guess_counter   = 0
   end
 

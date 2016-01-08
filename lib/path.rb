@@ -1,6 +1,5 @@
 require_relative 'word_search'
 require_relative 'game'
-require_relative 'web_server_2.rb'
 
 class PathRequest
   attr_reader :counter, :hello_counter
@@ -19,7 +18,7 @@ class PathRequest
     "Hello, World! (#{@hello_counter += 1})"
   end
 
-  def paths(path_to_follow, parameter_value, response_body, verb)
+  def paths(path_to_follow, parameter_value, format_response, verb)
     increase_counter(path_to_follow)
     case path_to_follow
     when "/hello"
@@ -35,7 +34,7 @@ class PathRequest
     when "/game"
       path_output = @game_player.game(parameter_value, verb)
     else
-      path_output = response_body
+      path_output = ""
     end
   end
 
@@ -59,7 +58,7 @@ class PathRequest
   end
 
   def redirect?
-    @game_player.redirect?
+    @game_player ? @game_player.redirect? : false
   end
 
 end

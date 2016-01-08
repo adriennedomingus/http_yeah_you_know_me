@@ -14,25 +14,25 @@ class WebServer
     @request_lines = []
   end
 
-  def format_response
+  def get_response
     while line = client.gets and !line.chomp.empty?
       request_lines << line.chomp
     end
     request_lines
   end
 
-  def command_line_output(response_body)
+  def command_line_output(format_response)
     verb = "#{request_lines[0].split[0]}"
     path = request_lines[0].split(/[\s?&=]/)
-    isolate_parameter_values(response_body)
-    path_output = path_options.paths(path[1], parameter_value, response_body, verb)
+    isolate_parameter_values(format_response)
+    path_output = path_options.paths(path[1], parameter_value, format_response, verb)
     puts "Got this request:"
     puts request_lines.inspect
     puts "sending response."
-    @response = "<pre>" + path_output + "</pre>"
+    @response = "<pre>" + path_output + "\n\n" + format_response + "</pre>"
   end
 
-  def isolate_parameter_values(response_body)
+  def isolate_parameter_values(format_response)
     path = request_lines[0].split(/[\s?&=]/)
     @parameter_value = []
     path[2..-2].each_with_index do |word, index|
@@ -62,8 +62,8 @@ class WebServer
     client.puts output
   end
 
-  def response_body(format_response)
-    request_lines = format_response
+  def format_response(get_response)
+    request_lines = get_response
     verb     = "Verb: #{request_lines[0].split[0]}"
     path     = "Path: #{request_lines[0].split[1]}"
     protocol = "Protocol: #{request_lines[0].split[2]}"
@@ -72,7 +72,7 @@ class WebServer
     origin   = "Origin: #{request_lines[1].split(":")[1,2].join(":")}"
     accept   = "#{request_lines[6]}"
     formatted_request_lines = [verb, path, protocol, host, port, origin, accept]
-    path_options.main_greeting + "\n\n" + formatted_request_lines.join("\n")
+    formatted_request_lines.join("\n")
   end
 
   def end_response
@@ -84,7 +84,7 @@ class WebServer
   def run!
     loop do
       start_server
-      command_line_output(response_body(format_response))
+      command_line_output(format_response(get_response))
       path_options.redirect? ? game_server_response : server_response
       end_response
       break if request_lines[0].split[1] == "/shutdown"
