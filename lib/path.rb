@@ -33,7 +33,7 @@ class PathRequest
     when "/start_game"
       path_output = start_game
     when "/game"
-      path_output = game(parameter_value, verb)
+      path_output = @game_player.game(parameter_value, verb)
     else
       path_output = response_body
     end
@@ -43,10 +43,6 @@ class PathRequest
     if path_to_follow != "/favicon.ico"
       @counter += 1
     end
-  end
-
-  def redirect?
-    @redirect
   end
 
   def datetime
@@ -62,22 +58,8 @@ class PathRequest
     "Good luck!"
   end
 
-  def game(parameter_value, verb)
-    if verb    == "GET"
-      play_game
-    elsif verb == "POST"
-      @redirect        = true
-      @parameter_value = parameter_value[0].to_i
-      "guess"
-    end
+  def redirect?
+    @game_player.redirect?
   end
 
-  def play_game
-    @redirect = false
-    if @parameter_value
-      @game_player.make_a_guess(@parameter_value)
-    else
-      "You did not make a guess!"
-    end
-  end
 end

@@ -11,10 +11,26 @@ class PathRequestTest < MiniTest::Test
     @response_body = "Hello, World! (1)\n\nVerb: GET\nPath: /\nProtocol: HTTP/1.1\nHost: localhost:9292\nPort: 9292\nOrigin:  localhost:9292\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
   end
 
-  def test_greeting_says_hello
+  def test_hello_greeting_says_hello
     path = PathRequest.new
 
-    assert_equal "Hello, World! (0)", path.hello_greeting
+    assert_equal "Hello, World! (1)", path.hello_greeting
+  end
+
+  def test_main_greeting_says_hello
+    path = PathRequest.new
+
+    assert_equal "Hello, World! (0)", path.main_greeting
+  end
+
+  def test_hello_and_main_greetings_count_differently
+    path = PathRequest.new
+
+    path.paths("/hello", [], @response_body, "GET")
+    path.paths("/", [], @response_body, "GET")
+    path.paths("/datetime", [], @response_body, "GET")
+    assert_equal 1, path.hello_counter
+    assert_equal 3, path.counter
   end
 
   def test_hello_path_returns_greeting
