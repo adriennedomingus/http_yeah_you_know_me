@@ -5,26 +5,23 @@ class WebServer
   attr_reader :client, :request_lines, :path_output, :path_options, :output, :headers, :parameter_value
 
   def initialize
-    @server       = TCPServer.new(9292)
-    @path_options = PathRequest.new
+    @server        = TCPServer.new(9292)
+    @path_options  = PathRequest.new
   end
 
   def start_server
     @client        = @server.accept
     @request_lines = []
-  end
-
-  def get_response
     while line = client.gets and !line.chomp.empty?
       request_lines << line.chomp
     end
     request_lines
   end
 
-  def command_line_output(format_response)
+  def command_line_output
     verb = "#{request_lines[0].split[0]}"
     path = request_lines[0].split(/[\s?&=]/)
-    isolate_parameter_values(format_response)
+    isolate_parameter_values
     path_output = path_options.paths(path[1], parameter_value, format_response, verb)
     puts "Got this request:"
     puts request_lines.inspect
@@ -32,7 +29,8 @@ class WebServer
     @response = "<pre>" + path_output + "\n\n" + format_response + "</pre>"
   end
 
-  def isolate_parameter_values(format_response)
+  def isolate_parameter_values
+    format_response
     path = request_lines[0].split(/[\s?&=]/)
     @parameter_value = []
     path[2..-2].each_with_index do |word, index|
@@ -62,8 +60,8 @@ class WebServer
     client.puts output
   end
 
-  def format_response(get_response)
-    request_lines = get_response
+  def format_response
+    request_lines
     verb     = "Verb: #{request_lines[0].split[0]}"
     path     = "Path: #{request_lines[0].split[1]}"
     protocol = "Protocol: #{request_lines[0].split[2]}"
@@ -84,7 +82,7 @@ class WebServer
   def run!
     loop do
       start_server
-      command_line_output(format_response(get_response))
+      command_line_output
       path_options.redirect? ? game_server_response : server_response
       end_response
       break if request_lines[0].split[1] == "/shutdown"
