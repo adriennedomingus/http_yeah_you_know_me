@@ -7,24 +7,22 @@ class WebServer
   def initialize
     @server       = TCPServer.new(9292)
     @path_options = PathRequest.new
-  end
-
-  def start_server
-    @client        = @server.accept
     @request_lines = []
   end
 
-  def format_response
+  def start_server
+    @client = @server.accept
     while line = client.gets and !line.chomp.empty?
       request_lines << line.chomp
     end
     request_lines
   end
 
-  def command_line_output(response_body)
+  def command_line_output
+    response_body
     verb = "#{request_lines[0].split[0]}"
     path = request_lines[0].split(/[\s?&=]/)
-    isolate_parameter_values(response_body)
+    isolate_parameter_values
     path_output = path_options.paths(path[1], parameter_value, response_body, verb)
     puts "Got this request:"
     puts request_lines.inspect
@@ -32,7 +30,7 @@ class WebServer
     @response = "<pre>" + path_output + "</pre>"
   end
 
-  def isolate_parameter_values(response_body)
+  def isolate_parameter_values
     path = request_lines[0].split(/[\s?&=]/)
     @parameter_value = []
     path[2..-2].each_with_index do |word, index|
@@ -42,7 +40,7 @@ class WebServer
     end
   end
 
-  def server_response
+  def get_request
     @output  = "<html><head></head><body>#{@response}</body></html>"
     @headers = ["http/1.1 200 ok",
                 "date: #{Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')}",
@@ -53,7 +51,7 @@ class WebServer
     client.puts output
   end
 
-  def game_server_response
+  def post_request
     @output  = "<html><head></head><body>#{@response}</body></html>"
     @headers = ["HTTP/1.1 302 Found",
                 "Location: http://127.0.0.1:9292/game\r\n\r\n",
@@ -62,8 +60,7 @@ class WebServer
     client.puts output
   end
 
-  def response_body(format_response)
-    request_lines = format_response
+  def response_body
     verb     = "Verb: #{request_lines[0].split[0]}"
     path     = "Path: #{request_lines[0].split[1]}"
     protocol = "Protocol: #{request_lines[0].split[2]}"
@@ -84,8 +81,8 @@ class WebServer
   def run!
     loop do
       start_server
-      command_line_output(response_body(format_response))
-      path_options.redirect? ? game_server_response : server_response
+      command_line_output
+      path_options.redirect? ? post_request : get_request
       end_response
       break if request_lines[0].split[1] == "/shutdown"
     end

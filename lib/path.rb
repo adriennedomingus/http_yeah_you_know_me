@@ -7,8 +7,8 @@ class PathRequest
 
   def initialize
     @counter       = 0
-    @hello_counter = 0
     @redirect      = false
+    @hello_counter = 0
   end
 
   def main_greeting
@@ -16,7 +16,7 @@ class PathRequest
   end
 
   def hello_greeting
-    "Hello, World! (#{@hello_counter += 1})"
+    "Hello, World! (#{hello_counter += 1})"
   end
 
   def paths(path_to_follow, parameter_value, response_body, verb)
