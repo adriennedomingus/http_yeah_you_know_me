@@ -3,23 +3,27 @@ require_relative 'game'
 require_relative 'web_server_2.rb'
 
 class PathRequest
-
-  attr_reader :counter
+  attr_reader :counter, :hello_counter
 
   def initialize
-    @counter = 0
-    @redirect = false
+    @counter       = 0
+    @hello_counter = 0
+    @redirect      = false
   end
 
-  def greeting
+  def main_greeting
     "Hello, World! (#{counter})"
+  end
+
+  def hello_greeting
+    "Hello, World! (#{@hello_counter += 1})"
   end
 
   def paths(path_to_follow, parameter_value, response_body, verb)
     increase_counter(path_to_follow)
     case path_to_follow
     when "/hello"
-      path_output = hello
+      path_output = hello_greeting
     when "/datetime"
       path_output = datetime
     when "/shutdown"
@@ -45,10 +49,6 @@ class PathRequest
     @redirect
   end
 
-  def hello
-    greeting
-  end
-
   def datetime
     Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')
   end
@@ -63,18 +63,18 @@ class PathRequest
   end
 
   def game(parameter_value, verb)
-    if verb == "GET"
-      play_game(parameter_value, verb)
+    if verb    == "GET"
+      play_game
     elsif verb == "POST"
-      @redirect = true
+      @redirect        = true
       @parameter_value = parameter_value[0].to_i
       "guess"
     end
   end
 
-  def play_game(parameter_value, verb)
+  def play_game
     @redirect = false
-    if @parameter_value != nil
+    if @parameter_value
       @game_player.make_a_guess(@parameter_value)
     else
       "You did not make a guess!"

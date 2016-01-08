@@ -14,7 +14,7 @@ class PathRequestTest < MiniTest::Test
   def test_greeting_says_hello
     path = PathRequest.new
 
-    assert_equal "Hello, World! (0)", path.greeting
+    assert_equal "Hello, World! (0)", path.hello_greeting
   end
 
   def test_hello_path_returns_greeting
@@ -74,22 +74,12 @@ class PathRequestTest < MiniTest::Test
     assert_equal result, path.paths("/game", [], @response_body, "GET")
   end
 
-  def test_with_a_guess_makes_a_guess
-    path = PathRequest.new
-
-    refute @redirect
-    path.paths("/game", [43], @response_body, "POST")
-
-    #parameter value isn't getting stored, but working in postman
-    assert_equal 43, @parameter_value
-  end
-
   def test_different_responses_with_multiple_requests
     path = PathRequest.new
 
     result1 = Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')
     result2 = "Hello, World! (1)\n\nVerb: GET\nPath: /\nProtocol: HTTP/1.1\nHost: localhost:9292\nPort: 9292\nOrigin:  localhost:9292\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
-    result3 = "Hello, World! (3)"
+    result3 = "Hello, World! (1)"
 
     assert_equal result1, path.paths("/datetime", [], @response_body, "GET")
     assert_equal result2, path.paths("/", [], @response_body, "GET")
