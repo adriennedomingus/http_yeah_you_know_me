@@ -60,14 +60,6 @@ class PathRequestTest < MiniTest::Test
     assert_equal result, path.paths("/word_search", ["hello", "pizza", "ajdlkfjal"], @response_body, "GET")
   end
 
-  def test_blank_path_returns_response_body
-    path = PathRequest.new
-
-    result = "Hello, World! (1)\n\nVerb: GET\nPath: /\nProtocol: HTTP/1.1\nHost: localhost:9292\nPort: 9292\nOrigin:  localhost:9292\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
-
-    assert_equal result, path.paths("/", [], @response_body, "GET")
-  end
-
   def test_game_path_post_verb_sets_redirect_to_true
     path = PathRequest.new
 
@@ -96,7 +88,7 @@ class PathRequestTest < MiniTest::Test
     path = PathRequest.new
 
     result1 = Time.now.strftime('%a, %e %b %Y %H:%M:%S %z')
-    result2 = "Hello, World! (1)\n\nVerb: GET\nPath: /\nProtocol: HTTP/1.1\nHost: localhost:9292\nPort: 9292\nOrigin:  localhost:9292\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+    result2 = ""
     result3 = "Hello, World! (1)"
 
     assert_equal result1, path.paths("/datetime", [], @response_body, "GET")
